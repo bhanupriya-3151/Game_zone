@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Game Zone</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: #f5f5f5;
+    text-align: center;
+  }
+  h1 {
+    color: purple;
+    font-size: 48px;
+    margin-top: 100px;
+  }
+  .game-icons {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+  }
+  .game-icons div {
+    background: #2a2a2a;
+    padding: 20px 30px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .game-icons div:hover {
+    background: #444;
+    transform: scale(1.1);
+  }
+  section {
+    display: none;
+    padding: 20px;
+    text-align: center;
+  }
+  .active {
+    display: block;
+  }
+  /* Tic Tac Toe */
+  #ticTacToeBoard {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    gap: 5px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  #ticTacToeBoard div {
+    width: 100px;
+    height: 100px;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    cursor: pointer;
+  }
+  /* Snakes & Ladders (simple 5x5) */
+  #snlBoard {
+    display: grid;
+    grid-template-columns: repeat(5, 60px);
+    gap: 2px;
+    justify-content: center;
+    margin: 20px auto;
+  }
+  #snlBoard div {
+    width: 60px;
+    height: 60px;
+    background: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  /* Bingo */
+  #bingoBoard {
+    display: grid;
+    grid-template-columns: repeat(5, 60px);
+    gap: 2px;
+    justify-content: center;
+    margin: 20px auto;
+  }
+  #bingoBoard div {
+    width: 60px;
+    height: 60px;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<!-- Landing Page -->
+<div id="landing">
+  <h1>Welcome to Game Zone</h1>
+  <div class="game-icons">
+    <div onclick="showGame('ticTacToe')">🎯 Tic Tac Toe</div>
+    <div onclick="showGame('snakesLadders')">🐍 Snakes & Ladders</div>
+    <div onclick="showGame('bingo')">🎲 Bingo</div>
+    <div onclick="showGame('anagram')">🔤 Anagrams</div>
+  </div>
+</div>
+
+<!-- Games -->
+<section id="ticTacToe">
+  <h2>Tic Tac Toe</h2>
+  <div id="ticTacToeBoard"></div>
+  <p id="ticTacToeMsg"></p>
+  <button onclick="backToLanding()">⬅ Back</button>
+</section>
+
+<section id="snakesLadders">
+  <h2>Snakes & Ladders</h2>
+  <div id="snlBoard"></div>
+  <button onclick="rollDice()">🎲 Roll Dice</button>
+  <p id="snlMsg"></p>
+  <button onclick="backToLanding()">⬅ Back</button>
+</section>
+
+<section id="bingo">
+  <h2>Bingo</h2>
+  <div id="bingoBoard"></div>
+  <p id="bingoMsg"></p>
+  <button onclick="backToLanding()">⬅ Back</button>
+</section>
+
+<section id="anagram">
+  <h2>Anagrams</h2>
+  <p id="anagramWord"></p>
+  <input type="text" id="anagramInput" placeholder="Your guess">
+  <button onclick="checkAnagram()">Check</button>
+  <p id="anagramMsg"></p>
+  <button onclick="backToLanding()">⬅ Back</button>
+</section>
+
+<script>
+  // Landing & Game navigation
+  function showGame(gameId) {
+    document.getElementById('landing').style.display = 'none';
+    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+    document.getElementById(gameId).style.display = 'block';
+  }
+  function backToLanding() {
+    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+    document.getElementById('landing').style.display = 'block';
+  }
+
+  // ---------------- Tic Tac Toe ----------------
+  let ticTacToeBoard = Array(9).fill("");
+  let currentPlayer = "X";
+  const ticTacToeDiv = document.getElementById("ticTacToeBoard");
+  const ticTacToeMsg = document.getElementById("ticTacToeMsg");
+
+  function drawTicTacToe() {
+    ticTacToeDiv.innerHTML = "";
+    ticTacToeBoard.forEach((val, i) => {
+      const cell = document.createElement("div");
+      cell.textContent = val;
+      cell.onclick = () => makeMove(i);
+      ticTacToeDiv.appendChild(cell);
+    });
+  }
+  function makeMove(i) {
+    if (!ticTacToeBoard[i]) {
+      ticTacToeBoard[i] = currentPlayer;
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      drawTicTacToe();
+      checkWin();
+    }
+  }
+  function checkWin() {
+    const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    wins.forEach(pattern=>{
+      let [a,b,c]=pattern;
+      if(ticTacToeBoard[a] && ticTacToeBoard[a]===ticTacToeBoard[b] && ticTacToeBoard[a]===ticTacToeBoard[c]){
+        ticTacToeMsg.textContent = `${ticTacToeBoard[a]} Wins!`;
+      }
+    });
+  }
+  drawTicTacToe();
+
+  // ---------------- Snakes & Ladders ----------------
+  let snlPos = 0;
+  const snlMsg = document.getElementById("snlMsg");
+  const snlDiv = document.getElementById("snlBoard");
+
+  function drawSNL() {
+    snlDiv.innerHTML = "";
+    for (let i = 25; i >= 1; i--) {
+      const cell = document.createElement("div");
+      cell.textContent = (i===snlPos? "🧍":"") + i;
+      snlDiv.appendChild(cell);
+    }
+  }
+  function rollDice() {
+    let dice = Math.floor(Math.random()*6)+1;
+    snlPos += dice;
+    if(snlPos>=25){snlPos=25; snlMsg.textContent="You Win!";}
+    else snlMsg.textContent="Moved to "+snlPos;
+    drawSNL();
+  }
+  drawSNL();
+
+  // ---------------- Bingo ----------------
+  const bingoDiv = document.getElementById("bingoBoard");
+  function drawBingo() {
+    bingoDiv.innerHTML="";
+    for(let i=1;i<=25;i++){
+      const cell=document.createElement("div");
+      cell.textContent=i;
+      cell.onclick=()=>{cell.style.background="#666"; checkBingo();};
+      bingoDiv.appendChild(cell);
+    }
+  }
+  function checkBingo(){
+    document.getElementById("bingoMsg").textContent="Keep marking!";
+  }
+  drawBingo();
+
+  // ---------------- Anagram ----------------
+  const words=["planet","school","laptop","friend","games"];
+  let originalWord="", scrambled="";
+  function newAnagram(){
+    originalWord=words[Math.floor(Math.random()*words.length)];
+    scrambled=originalWord.split("").sort(()=>0.5-Math.random()).join("");
+    document.getElementById("anagramWord").textContent="Unscramble: "+scrambled;
+    document.getElementById("anagramInput").value = "";
+    document.getElementById("anagramMsg").textContent = "";
+  }
+  function checkAnagram(){
+    let guess=document.getElementById("anagramInput").value;
+    if(guess.toLowerCase()===originalWord){
+      document.getElementById("anagramMsg").textContent="✅ Correct!";
+    } else {
+      document.getElementById("anagramMsg").textContent="❌ Try again!";
+    }
+  }
+  newAnagram();
+</script>
+</body>
+</html>
+
